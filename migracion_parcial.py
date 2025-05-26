@@ -46,17 +46,12 @@ def acces_DocumentsXML(): #conexion
         print("Comprova les credencials o la configuració de connexió.")
         sys.exit(1)
 
-from tinydb import TinyDB, Query
-import cx_Oracle
-
-all_items = Query()
-
 def dades_XQuery():
     conn = acces_DocumentsXML()
     cursor = None
 
     if len(db) > 0:  # Verifica si la base de datos tiene contenido
-        db.remove(all_items)
+        db.remove(all)
 
     try:
         cursor = conn.cursor()
@@ -114,7 +109,7 @@ def MuestraXConsola():
     valores = list(conteo.values())
     mitjana = sum(valores) / len(valores) if valores else 0
     print(f"Mitjana d’imatges per producte: {mitjana:.2f}\n")
-    
+
     # Formats més freqüents
     formats = [item['formats'] for item in db]
     freq = Counter(formats).most_common()
@@ -136,5 +131,3 @@ if __name__ == "__main__":
     MuestraXConsola()
 
     print("Script finalitzado")
-
-
