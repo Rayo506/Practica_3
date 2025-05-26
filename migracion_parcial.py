@@ -23,7 +23,7 @@ DocumentsXML.
 import cx_Oracle
 import sys
 from tinydb import TinyDB
-from collections import Counter
+from collections import Counter, defaultdict
 
 # Configuració de la connexió a la base de dades Oracle
 DB_USER = "SYSTEM"
@@ -49,7 +49,6 @@ def acces_DocumentsXML(): #conexion
 from tinydb import TinyDB, Query
 import cx_Oracle
 
-db = TinyDB('data.json')
 all_items = Query()
 
 def dades_XQuery():
@@ -75,9 +74,9 @@ def dades_XQuery():
         conteo_imatges = {}  # Diccionario para contar imágenes por producto
 
         for row in cursor:
-            pro_id = row.producte_id
-            format = row.format_imatge
-            titol = row.descripcio_imatge
+            pro_id = row[0]
+            format = row[1]
+            titol = row[2]
 
             if pro_id not in conteo_imatges:
                 conteo_imatges[pro_id] = 1
@@ -106,10 +105,16 @@ def MuestraXConsola():
     print(f"Total de productes: {total}\n")
 
     # Mitjana d’imatges per producte
-    imatges = [item['num_imatges'] for item in db]
-    mitjana = sum(imatges) / len(imatges) if imatges else 0
-    print(f"Mitjana d’imatges per producte: {mitjana:.2f}\n")
+    # Agrupamos las imágenes por producte_id
+    conteo = defaultdict(int)
+    for item in db:
+        conteo[item['producte_id']] += 1
 
+    # Calculamos la media
+    valores = list(conteo.values())
+    mitjana = sum(valores) / len(valores) if valores else 0
+    print(f"Mitjana d’imatges per producte: {mitjana:.2f}\n")
+    
     # Formats més freqüents
     formats = [item['formats'] for item in db]
     freq = Counter(formats).most_common()
