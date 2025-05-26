@@ -46,43 +46,50 @@ def acces_DocumentsXML(): #conexion
         print("Comprova les credencials o la configuració de connexió.")
         sys.exit(1)
 
+from tinydb import TinyDB, Query
+import cx_Oracle
+
+db = TinyDB('data.json')
+all_items = Query()
+
 def dades_XQuery():
-
-    # Extaccion por cada documento
-    # Inserccion de datos obtinidos a TinyDB
-
     conn = acces_DocumentsXML()
     cursor = None
 
-    if (db.get(all) > 0): #Si tiene contenido reescribirlo
-        db.remove(all)
+    if len(db) > 0:  # Verifica si la base de datos tiene contenido
+        db.remove(all_items)
 
     try:
         cursor = conn.cursor()
 
         cursor.execute("""
-        SELECT id, extractValue(value(t), '/imatge/@producte_id') as producte_id, 
-        extractValue(value(t), '/imatge/@descripcio_imatge') as descripcio_imatge,
-        extractValue(value(t), '/imatge/@format_imatge') as format_imatge
+        SELECT extractValue(value(t), '/imatge/@producte_id') as producte_id, 
+               extractValue(value(t), '/imatge/@descripcio_imatge') as descripcio_imatge,
+               extractValue(value(t), '/imatge/@format_imatge') as format_imatge
         FROM DocumentsXML d,
             TABLE(XMLSequence(
                 EXTRACT(d.xml_data, '/producte/imatges/imatge')
             )) t
         """)
+
+        conteo_imatges = {}  # Diccionario para contar imágenes por producto
+
         for row in cursor:
             pro_id = row.producte_id
-            format =  row.format_imatge
+            format = row.format_imatge
             titol = row.descripcio_imatge
 
-            id_prducto = pro_id # modificar Como con una array o cua, para poder guardar los id's oara verificar que existe ya y sumar 1
+            if pro_id not in conteo_imatges:
+                conteo_imatges[pro_id] = 1
+            else:
+                conteo_imatges[pro_id] += 1
 
-            num_img = 1
-
-            if (pro_id == id_prducto): # if mirar que tenga el mismo nombre entonces 
-                num_img # sumar 1
-            
-            
-            db.insert({'producte_id': pro_id, 'num_imatges': num_img, 'formats': format, 'titol': titol})
+            db.insert({
+                'producte_id': pro_id,
+                'num_imatges': conteo_imatges[pro_id],
+                'formats': format,
+                'titol': titol
+            })
 
     except cx_Oracle.Error as e:
         print(f"Error XQuery: {e}")
