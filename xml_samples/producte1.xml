@@ -1,0 +1,8 @@
+<producte>
+    <producte_id>101</producte_id>
+    <titol>Producte Exemple</titol>
+    <imatges>
+        <imatge format="jpg"/>
+        <imatge format="png"/>
+    </imatges>
+</producte>

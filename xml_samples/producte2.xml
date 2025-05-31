@@ -1,0 +1,7 @@
+<producte>
+    <producte_id>102</producte_id>
+    <titol>Producte 2</titol>
+    <imatges>
+        <imatge format="webp"/>
+    </imatges>
+</producte>
